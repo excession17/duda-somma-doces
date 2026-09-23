@@ -1,0 +1,24 @@
+name: Importar arquivos da loja
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/import-site.yml]
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Conferir e importar o pacote preparado
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -f site-source.tar.gz ]; then exit 0; fi
+          echo '71792edc8d49d2a0ab1ed2a7fdbee7e75cd55b005d0bfea782d957c53299a351  site-source.tar.gz' | sha256sum -c -
+          tar -xzf site-source.tar.gz
+          git rm site-source.tar.gz
+          git add src public netlify tests package.json package-lock.json tsconfig.json vite.config.ts postcss.config.js netlify.toml index.html .gitignore LEIA-ME.md README.md
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Importar loja completa pronta para Netlify'
+          git push origin HEAD:main
