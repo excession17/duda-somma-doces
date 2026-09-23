@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {priceCart} from '../src/lib/pricing.ts';
+import {products} from '../src/lib/catalog.ts';
+assert.equal(priceCart(products,{}).total,0);
+for(const [quantity,total] of [[1,8],[2,15],[3,23],[4,30]]) assert.equal(priceCart(products,{3:quantity}).total,total,`Pudim × ${quantity}`);
+for(const [quantity,total] of [[1,13],[2,25],[3,38],[4,50]]) assert.equal(priceCart(products,{1:quantity}).total,total,`Bolo × ${quantity}`);
+assert.equal(priceCart(products,{1:1,7:1}).total,25,'Bolos de sabores diferentes');
+assert.equal(priceCart(products,{1:1,7:2}).total,38,'Par misto e unidade avulsa');
+assert.equal(priceCart(products,{1:1,3:1}).total,21,'Não combinar promoções de categorias diferentes');
+const mixed=priceCart(products,{1:1,7:1,3:2,4:1,2:1,8:1,5:1,6:1,9:1});
+assert.equal(mixed.subtotal,116);
+assert.equal(mixed.discount,2);
+assert.equal(mixed.total,114);
+assert.equal(priceCart(products,{3:1}).discount,0,'Desconto removido ao diminuir a quantidade');
+assert.equal(products.length,9);
+assert.ok(products.every(p=>p.price>0));
+console.log('Preços e promoções verificados: unidades, pares, sabores combinados e sacola mista.');

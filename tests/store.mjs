@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import {handleStore} from '../netlify/lib/store-core.ts';
+const records=new Map();let version=0;
+const storage=()=>({async getWithMetadata(key){return structuredClone(records.get(key)||null)},async setJSON(key,data,opts){const current=records.get(key);if((opts.onlyIfNew&&current)||(opts.onlyIfMatch&&current?.etag!==opts.onlyIfMatch))return {modified:false};records.set(key,{data:structuredClone(data),etag:String(++version)});return {modified:true}}});
+const user={id:'alice',email:'alice@example.test'};
+function req(body,origin='https://duda.example',method='POST'){return new Request('https://duda.example/api/store',{method,headers:{origin,'Content-Type':'application/json'},...(method==='POST'?{body:JSON.stringify(body)}:{})})}
+const op=(id,delta=1)=>({action:'change',id,delta,operationId:crypto.randomUUID()});
+assert.equal((await handleStore(req(op(1)),null,storage)).status,401);
+assert.equal((await handleStore(req(op(1),'https://evil.example'),user,storage)).status,403);
+assert.equal(records.size,0);
+assert.equal((await handleStore(req(op(999)),user,storage)).status,400);
+assert.equal((await handleStore(req({action:'import',operationId:crypto.randomUUID(),items:[null]}),user,storage)).status,400);
+const once=op(1);await handleStore(req(once),user,storage);let res=await handleStore(req(once),user,storage);assert.equal((await res.json()).cart[1],1,'retry is idempotent');
+await Promise.all([handleStore(req(op(1)),user,storage),handleStore(req(op(1)),user,storage)]);
+res=await handleStore(req(null,undefined,'GET'),user,storage);assert.equal((await res.json()).cart[1],3,'concurrent updates preserved');
+const other={id:'bob',email:'bob@example.test'};res=await handleStore(req(null,undefined,'GET'),other,storage);assert.deepEqual((await res.json()).cart,{},'accounts isolated');
+await handleStore(req(op(1,99)),user,storage);res=await handleStore(req(null,undefined,'GET'),user,storage);assert.equal((await res.json()).cart[1],99);
+await handleStore(req(op(1,-99)),user,storage);res=await handleStore(req(null,undefined,'GET'),user,storage);assert.deepEqual((await res.json()).cart,{});
+const imported={action:'import',operationId:crypto.randomUUID(),items:[{id:3,delta:2},{id:7,delta:1}]};await handleStore(req(imported),user,storage);res=await handleStore(req(imported),user,storage);assert.deepEqual((await res.json()).cart,{'3':2,'7':1});
+res=await handleStore(req({action:'profile',name:' Duda '}),user,storage);assert.equal((await res.json()).profile.name,'Duda');
+const conflict=()=>({async getWithMetadata(){return null},async setJSON(){return {modified:false}}});assert.equal((await handleStore(req(op(1)),user,conflict)).status,409);
+console.log('Sacola: autorização, origem, validação, isolamento, limites, concorrência e repetição de pedidos verificados.');
