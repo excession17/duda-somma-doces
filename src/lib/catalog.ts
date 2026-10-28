@@ -1,4 +1,4 @@
-export type Product={id:number;name:string;cat:string;price:number;unit:string;img:string|null;tag:string;desc:string;deal?:'bolo'|'pudim'};
+export type Product={id:number;name:string;cat:string;price:number;unit:string;img:string|null;tag:string;desc:string;stock?:number|null;hidden?:boolean;deal?:'bolo'|'pudim'};
 export const products:Product[]=[
 {id:1,name:'Bolo de cenoura no pote',cat:'Bolos no pote',price:13,unit:'1 por R$ 13 · 2 por R$ 25',img:'bolo-pote-v2',tag:'Cenoura',desc:'Bolo de cenoura servido no pote. Combine com o chocolatudo na promoção de duas unidades.',deal:'bolo'},
 {id:7,name:'Bolo chocolatudo no pote',cat:'Bolos no pote',price:13,unit:'1 por R$ 13 · 2 por R$ 25',img:'bolo-pote-v2',tag:'Chocolatudo',desc:'Bolo chocolatudo servido no pote. Combine com o de cenoura na promoção de duas unidades.',deal:'bolo'},

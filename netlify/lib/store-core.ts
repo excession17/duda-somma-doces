@@ -1,10 +1,10 @@
-import {products} from '../../src/lib/catalog.ts';
+import {products as defaults,type Product} from '../../src/lib/catalog.ts';
 type User={id:string;email?:string;name?:string};
 export type State={cart:Record<string,number>;profile:{name:string};operations:string[]};
 type Storage={getWithMetadata:(key:string,options:{type:'json'})=>Promise<{data:State;etag:string}|null>;setJSON:(key:string,data:State,options:{onlyIfMatch?:string;onlyIfNew?:boolean})=>Promise<{modified:boolean}>};
 const empty=():State=>({cart:{},profile:{name:''},operations:[]});
 const json=(body:unknown,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'private, no-store','Vary':'Cookie','X-Content-Type-Options':'nosniff'}});
-export async function handleStore(request:Request,user:User|null,storage:()=>Storage){
+export async function handleStore(request:Request,user:User|null,storage:()=>Storage,products:Product[]=defaults){
  if(!['GET','POST'].includes(request.method))return json({error:'Método não permitido.'},405);
  if(request.method==='POST'){
   if(request.headers.get('origin')!==new URL(request.url).origin||request.headers.get('sec-fetch-site')==='cross-site')return json({error:'Solicitação não autorizada.'},403);
@@ -35,6 +35,7 @@ export async function handleStore(request:Request,user:User|null,storage:()=>Sto
    // Preserve every operation ID: delayed retries must never add products twice.
    const changes=body.action==='import'?body.items:[{id:body.id,delta:body.delta}];
    for(const c of changes){const quantity=Math.min(99,Math.max(0,(state.cart[c.id]||0)+c.delta));if(quantity)state.cart[c.id]=quantity;else delete state.cart[c.id];}
+   for(const p of products){const q=state.cart[p.id]||0;if(q>0&&(p.hidden||q>(p.stock??99))&&changes.some((c:{id:number;delta:number})=>c.id===p.id&&c.delta>0))return json({error:'Quantidade indisponível no estoque.'},409);}
    state.operations.push(body.operationId);
   }
   const result=await db.setJSON(key,state,current?{onlyIfMatch:current.etag}:{onlyIfNew:true});
