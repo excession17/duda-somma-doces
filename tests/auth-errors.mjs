@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {authErrorMessage} from '../src/lib/auth-errors.ts';
+assert.match(authErrorMessage({cause:{status:429,json:{msg:'Email rate limit exceeded'}}},'signup'),/CADASTRO-429/);
+assert.match(authErrorMessage({cause:{status:500,json:{msg:'Error sending recovery email'}}},'reset'),/responsável pelo site precisa verificar o Netlify/);
+assert.match(authErrorMessage({cause:{status:400,json:{error_description:'Email not confirmed'}}},'login'),/Confirme seu cadastro/);
+assert.match(authErrorMessage(new TypeError('Failed to fetch'),'signup'),/Safari ou Chrome/);
+const safe=authErrorMessage({cause:{status:400,json:{msg:'private@example.test password=SECRET token=PRIVATE'}}},'reset');
+assert.ok(!safe.includes('SECRET')&&!safe.includes('PRIVATE')&&!safe.includes('private@example.test'));
+assert.match(safe,/RECUPERACAO-400/);
+console.log('Erros de acesso: causas do SDK, limites, confirmação, falhas do serviço e proteção de dados verificados.');
