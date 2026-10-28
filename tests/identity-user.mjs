@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {verifiedIdentityUser} from '../netlify/lib/identity-user.ts';
+import {ownerAccess} from '../netlify/lib/owner-access.ts';
+const request=new Request('https://sommadoces.netlify.app/api/catalog',{headers:{cookie:'other=value; nf_jwt=test-token; nf_refresh=test-refresh'}});
+let calls=0;
+const valid=async(url,options)=>{calls++;assert.equal(url,'https://sommadoces.netlify.app/.netlify/identity/user');assert.equal(options.headers.Authorization,'Bearer test-token');assert.equal(options.redirect,'error');return Response.json({id:'owner',confirmed_at:'2026-10-28T20:00:00Z',user_metadata:{}})};
+const user=await verifiedIdentityUser(request,null,valid);
+assert.equal(user.confirmedAt,'2026-10-28T20:00:00Z');assert.equal(ownerAccess(user,'owner').allowed,true);
+assert.equal(ownerAccess(user,'someone-else').allowed,false);
+assert.equal(await verifiedIdentityUser(new Request('https://sommadoces.netlify.app/api/catalog'),null,valid),null);assert.equal(calls,1);
+for(const status of [401,403])assert.equal(await verifiedIdentityUser(request,null,async()=>new Response('',{status})),null);
+const forged=await verifiedIdentityUser(request,null,async()=>Response.json({id:'owner',user_metadata:{confirmed_at:'2026-10-28T20:00:00Z',confirmedAt:'2026-10-28T20:00:00Z'}}));assert.equal(ownerAccess(forged,'owner').allowed,false);
+await assert.rejects(()=>verifiedIdentityUser(request,null,async()=>new Response('',{status:503})));
+await assert.rejects(()=>verifiedIdentityUser(request,null,async()=>Response.json({user_metadata:{id:'owner'}})));
+await verifiedIdentityUser(request,'renewed-token',async(url,options)=>{assert.equal(options.headers.Authorization,'Bearer renewed-token');return Response.json({id:'owner',confirmed_at:'2026-10-28T20:00:00Z'})});
+console.log('Identity: confirmação consultada no servidor, token renovado, ausência de sessão, rejeição de tokens e metadados forjados verificados.');
