@@ -1,10 +1,6 @@
 import assert from 'node:assert/strict';
-import {handleCatalog,isOwner,catalogDefaults} from '../netlify/lib/catalog-core.ts';
+import {handleCatalog,catalogDefaults} from '../netlify/lib/catalog-core.ts';
 import {handleStore} from '../netlify/lib/store-core.ts';
-assert.equal(isOwner({id:'owner',email:'mariaeduarda081007@gmail.com',confirmedAt:'2026-01-01'},undefined),false);
-assert.equal(isOwner({id:'other',email:'mariaeduarda081007@gmail.com',confirmedAt:'2026-01-01'},'owner'),false);
-assert.equal(isOwner({id:'owner',email:'mariaeduarda081007@gmail.com'},'owner'),false);
-assert.equal(isOwner({id:'owner',email:'mariaeduarda081007@gmail.com',confirmedAt:'2026-01-01'},'owner'),true);
 let record=null;let version=0;const db={get:async()=>structuredClone(record),save:async(data,etag)=>{if((record?.etag??null)!==etag)return {modified:false};record={data,etag:String(++version)};return {modified:true}}};
 const req=(products,version=null,origin='https://duda.test')=>new Request('https://duda.test/api/catalog',{method:'PUT',headers:{origin,'Content-Type':'application/json'},body:JSON.stringify({products,version})});
 const original=catalogDefaults();

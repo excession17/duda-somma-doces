@@ -5,10 +5,10 @@ Esta versão preserva o catálogo inicial, a identidade visual, a sacola e o env
 ## Ativação no Netlify
 
 1. Publique primeiro esta branch em uma prévia com Functions, Identity e Blobs disponíveis. Não use um upload estático de `dist`.
-2. No Identity do projeto, mantenha a confirmação de e-mail ativada. A dona deve criar a própria conta com `mariaeduarda081007@gmail.com` e confirmar o e-mail. O login existente por e-mail e senha foi preservado; login com Google não foi configurado.
+2. No Identity do projeto, mantenha a confirmação de e-mail ativada. A dona deve criar a própria conta com o e-mail informado para a administração e confirmar o e-mail. O login existente por e-mail e senha foi preservado; login com Google não foi configurado.
 3. Confira com a dona que a conta é dela. No painel Identity, copie o ID dessa conta confirmada.
-4. Nas variáveis de ambiente do Netlify, adicione `DUDA_OWNER_USER_ID` com esse ID, disponível para as Functions. Não coloque senhas ou tokens no repositório. Publique novamente após configurar.
-5. Ao entrar com essa conta, aparecerá “Administrar minha loja”. A API exige simultaneamente ID autorizado, e-mail esperado e confirmação. Sem a variável, ninguém recebe acesso de edição. Campos de perfil de clientes não concedem permissão.
+4. Nas variáveis de ambiente do Netlify, adicione `DUDA_OWNER_USER_ID` com esse ID, disponível para as Functions. Publique novamente após configurar. O ID permanece na configuração do servidor e não deve ser colocado no repositório.
+5. Ao entrar com a conta autorizada, “Administrar minha loja” aparece no topo e dentro de Minha conta. A API exige ID configurado e confirmação. Se a verificação falhar para a conta conectada, Minha conta mostra um código de diagnóstico e permite verificar novamente. A verificação no navegador nunca concede permissão de gravação por si só.
 6. Faça os testes abaixo no domínio real e só então integre esta branch em `main`.
 
 ## Uso pela dona
