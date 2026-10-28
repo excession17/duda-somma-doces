@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "tsc --noEmit && vite build",
-    "test": "node --experimental-strip-types tests/pricing.mjs && node --experimental-strip-types tests/store.mjs && node --experimental-strip-types tests/catalog.mjs && node --experimental-strip-types tests/auth-errors.mjs && node --experimental-strip-types tests/owner-access.mjs && node --experimental-strip-types tests/identity-user.mjs"
+    "test": "node --experimental-strip-types tests/pricing.mjs && node --experimental-strip-types tests/store.mjs && node --experimental-strip-types tests/catalog.mjs && node --experimental-strip-types tests/auth-errors.mjs && node --experimental-strip-types tests/owner-access.mjs && node --experimental-strip-types tests/identity-user.mjs && node --experimental-strip-types tests/product-photo.mjs"
   },
   "dependencies": {
     "@netlify/identity": "2.0.0",

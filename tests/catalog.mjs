@@ -19,3 +19,11 @@ assert.equal((await handleStore(change(2),{id:'customer'},carts,published.produc
 assert.equal((await handleStore(change(1),{id:'customer'},carts,published.products)).status,409);
 assert.equal((await handleStore(change(-1),{id:'customer'},carts,published.products)).status,200);
 console.log('Catálogo: dono confirmado, origem, validação, concorrência, novos produtos e estoque verificados.');
+const consulting=published.products.map(p=>p.id===10?{...p,checkAvailability:true,stock:null}:p);
+assert.equal((await handleCatalog(req(consulting,published.version),true,db)).status,200);
+const consultation=await (await handleCatalog(new Request('https://duda.test/api/catalog'),false,db)).json();
+assert.equal(consultation.products.find(p=>p.id===10).checkAvailability,true);
+assert.equal((await handleStore(change(1),{id:'customer'},carts,consultation.products)).status,409);
+assert.equal((await handleStore(change(-1),{id:'customer'},carts,consultation.products)).status,200);
+assert.equal((await handleCatalog(req(consulting.map(p=>({...p,checkAvailability:'yes'})),consultation.version),true,db)).status,400);
+console.log('Disponibilidade: configuração persistida, consulta bloqueada na sacola e remoção de item antigo permitida.');

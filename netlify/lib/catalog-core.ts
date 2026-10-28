@@ -6,6 +6,7 @@ export function validProduct(p:Product){
  if(!p||!Number.isSafeInteger(p.id)||p.id<1||typeof p.price!=='number'||!Number.isFinite(p.price)||p.price<0.01||p.price>100000||Math.abs(p.price*100-Math.round(p.price*100))>0.00001)return false;
  for(const [key,max] of [['name',120],['cat',80],['unit',160],['tag',60],['desc',2000]] as const)if(typeof p[key]!=='string'||p[key].length>max)return false;
  if(!p.name.trim()||!p.cat.trim()||!(p.stock===null||p.stock===undefined||(Number.isInteger(p.stock)&&p.stock>=0&&p.stock<=99999))||!(p.hidden===undefined||typeof p.hidden==='boolean'))return false;
+ if(p.checkAvailability!==undefined&&typeof p.checkAvailability!=='boolean')return false;
  if(p.deal!==undefined&&!(p.deal==='bolo'&&p.price===13)&&!(p.deal==='pudim'&&p.price===8))return false;
  return p.img===null||(typeof p.img==='string'&&(/^[a-z0-9-]+$/.test(p.img)||/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(p.img)&&p.img.length<=700000));
 }
@@ -22,7 +23,7 @@ export async function handleCatalog(request:Request,owner:boolean,db:CatalogDB,a
  const current=await db.get();if((current?.etag??null)!==body.version)return json({error:'O cardápio mudou em outra tela. Recarregue antes de editar novamente.'},409);
  // Existing IDs remain available to saved carts. Hide instead of deleting.
  if((current?.data.products??defaults).some(p=>!body.products.some((n:Product)=>n.id===p.id)))return json({error:'Oculte os produtos que deseja retirar da vitrine.'},400);
- const products=body.products.map((p:Product)=>({id:p.id,name:p.name.trim(),cat:p.cat.trim(),price:p.price,unit:p.unit,tag:p.tag,desc:p.desc,img:p.img,stock:p.stock??null,hidden:!!p.hidden,...(p.deal?{deal:p.deal}:{})}));
+ const products=body.products.map((p:Product)=>({id:p.id,name:p.name.trim(),cat:p.cat.trim(),price:p.price,unit:p.unit,tag:p.tag,desc:p.desc,img:p.img,stock:p.stock??null,hidden:!!p.hidden,checkAvailability:!!p.checkAvailability,...(p.deal?{deal:p.deal}:{})}));
  if(!(await db.save({products},body.version)).modified)return json({error:'Outra atualização foi salva. Recarregue o painel.'},409);
  return json({ok:true});
 }

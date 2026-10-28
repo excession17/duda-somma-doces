@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {compressPhoto,prepareProductPhoto} from '../src/lib/product-photo.ts';
+let attempts=[];const canvas={width:0,height:0,getContext:()=>({fillRect(){},drawImage(){},fillStyle:''}),toDataURL(type,quality){attempts.push({type,quality,width:this.width,height:this.height});return 'data:image/jpeg;base64,'+'A'.repeat(this.width>800?140000:80000)}};
+const result=compressPhoto({},4032,3024,canvas);
+assert.ok(result.length<=120000);assert.equal(canvas.width,800);assert.equal(canvas.height,600);assert.ok(attempts.length>4);assert.ok(attempts.every(a=>a.type==='image/jpeg'));
+attempts=[];compressPhoto({},100,200,canvas);assert.equal(canvas.width,100);assert.equal(canvas.height,200);
+assert.throws(()=>compressPhoto({},0,10,canvas));
+await assert.rejects(()=>prepareProductPhoto({size:31*1024*1024,type:'image/jpeg'}),/30 MB/);
+await assert.rejects(()=>prepareProductPhoto({size:1024,type:'image/heic'}),/JPG/);
+console.log('Fotos: redução progressiva de peso e dimensões, proporção preservada, sem ampliar fotos pequenas e validação de arquivo.');

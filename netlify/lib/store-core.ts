@@ -35,7 +35,7 @@ export async function handleStore(request:Request,user:User|null,storage:()=>Sto
    // Preserve every operation ID: delayed retries must never add products twice.
    const changes=body.action==='import'?body.items:[{id:body.id,delta:body.delta}];
    for(const c of changes){const quantity=Math.min(99,Math.max(0,(state.cart[c.id]||0)+c.delta));if(quantity)state.cart[c.id]=quantity;else delete state.cart[c.id];}
-   for(const p of products){const q=state.cart[p.id]||0;if(q>0&&(p.hidden||q>(p.stock??99))&&changes.some((c:{id:number;delta:number})=>c.id===p.id&&c.delta>0))return json({error:'Quantidade indisponível no estoque.'},409);}
+   for(const p of products){const q=state.cart[p.id]||0;if(q>0&&(p.hidden||p.checkAvailability||q>(p.stock??99))&&changes.some((c:{id:number;delta:number})=>c.id===p.id&&c.delta>0))return json({error:'Quantidade indisponível no estoque.'},409);}
    state.operations.push(body.operationId);
   }
   const result=await db.setJSON(key,state,current?{onlyIfMatch:current.etag}:{onlyIfNew:true});

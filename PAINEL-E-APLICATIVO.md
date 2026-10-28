@@ -13,7 +13,7 @@ Esta versão preserva o catálogo inicial, a identidade visual, a sacola e o env
 
 ## Uso pela dona
 
-Entre em Minha conta, abra Administrar minha loja e toque em Adicionar produto ou Editar. Preencha os dados, escolha uma foto e toque em Salvar produto. Uma quantidade igual a zero deixa o doce esgotado. Quantidade vazia significa sob encomenda. “Ocultar da vitrine” retira o doce sem apagar referências de sacolas antigas.
+Entre em Minha conta, abra Administrar minha loja e toque em Adicionar produto ou Editar. Preencha os dados, escolha uma foto e toque em Salvar produto. Uma quantidade igual a zero deixa o doce esgotado. Quantidade vazia significa sob encomenda. Ative “Verificar disponibilidade pelo WhatsApp” para substituir a compra direta por uma consulta com o nome do doce. Desative para voltar a usar a sacola. “Ocultar da vitrine” retira o doce sem apagar referências de sacolas antigas.
 
 O estoque é atualizado manualmente após confirmar uma venda. Uma sacola ou clique no WhatsApp não reserva nem baixa estoque. Não há pagamento ou confirmação de pedido no servidor.
 
@@ -35,3 +35,5 @@ Esta entrega é uma PWA, não um APK/AAB nem uma publicação na Play Store. O p
 - Produtos e preços são consultados ao abrir a loja e ao retornar à aba. Mudanças de preço/estoque posteriores ao envio de uma mensagem precisam ser conferidas no atendimento.
 
 Para desfazer a funcionalidade, volte ao commit anterior e publique novamente. Os produtos cadastrados ficam no store `duda-catalog` do Netlify Blobs, separados das sacolas. Não apague esse armazenamento ao reverter o código.
+
+Fotos JPG, PNG ou WebP de até 30 MB são comprimidas automaticamente em JPEG, preservando a proporção, com até 1200 pixels no lado maior e até 120 mil caracteres por nova foto. Não é necessário recortar. Fotos HEIC devem ser exportadas em JPG.
